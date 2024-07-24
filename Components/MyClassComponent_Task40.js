@@ -5,16 +5,19 @@ import { ADD } from '../store/actions/actions';
 
 class MyClassComponenet_Task40 extends Component
     {
-        render(){
-        return(
+        render()
+        {
+            return(
                 <TextInput style={styles.input} value ={this.props.text} onChangeText={(value)=> this.props.ADD(value)}></TextInput>
-        )
-    }
+            )
+        }
     }   
     const mapStateToProps = (state) =>
-    ({
+    (
+        {
             text: state.text
-    })
+        }
+    )
     const mapDispatchToProps = (dispatch) => 
     (
         {
