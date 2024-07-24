@@ -1,8 +1,7 @@
-import React, { Component,useState } from 'react'
-import { Text, View, Button, TextInput, StyleSheet } from 'react-native'
-import { Provider, useDispatch,useSelector } from 'react-redux'
+import React from 'react'
+import { TextInput, StyleSheet } from 'react-native'
+import {  useDispatch,useSelector } from 'react-redux'
 import { ADD } from '../store/actions/actions';
-import store from '../store/store';
 
 const MyFunctionalComponenet_Task39 =() =>
     {
