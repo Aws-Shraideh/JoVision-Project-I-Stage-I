@@ -24,6 +24,7 @@ import Task37 from './Tasks/Task37';
 import Task38 from './Tasks/Task38';
 import Task39 from './Tasks/Task39';
 import Task40 from './Tasks/Task40';
+import Task41 from './Tasks/Task41';
 
 
 
@@ -55,7 +56,8 @@ export default function App()
       //<Task37></Task37>
       //<Task38></Task38>
       //<Task39></Task39>
-      <Task40></Task40>
+      //<Task40></Task40>
+      <Task41></Task41>
 
 
   );
