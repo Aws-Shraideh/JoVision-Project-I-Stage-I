@@ -7,7 +7,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 const Task42 = () => {
 
-const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 const ScreenOne = ({navigation}) =>
