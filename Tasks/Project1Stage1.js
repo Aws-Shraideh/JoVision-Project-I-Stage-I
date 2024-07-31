@@ -30,9 +30,47 @@ const Project1Stage1 = () => {
         const photo = await camera.current?.takePhoto();
         setPicture(photo.path);
       };
+
+      const keepPicture = async () =>
+        {
+          await CameraRoll.save(`file://${picture}`, {
+          type: 'photo',
+          album:'ProjectStage1'
+          })
+          .then(() => 
+            {
+            console.log('Photo stored successfully');
+            setPicture(null);
+            })
+        .catch((error) => {
+            console.error('Error storing photo: ', error);
+        });
+        }
+        
+        const deletePicture = () =>
+        {
+            RNFS.unlink(`file://${picture}`)
+            .then(() => {
+                console.log('Photo deleted successfully');
+                setPicture(null);
+            })
+            .catch((error) => {
+                console.error('Error deleting photo: ', error);
+            });
+        }
+      const keepOrDiscard = () =>{
+        Alert.alert('Alert ', 'Keep or disard the photo?', [
+          {
+            text: 'discard',
+            onPress: () => deletePicture(),
+            style: 'cancel',
+          },
+          {text: 'Keep', onPress: () => keepPicture()},
+        ]);}
     
-      const previewPhoto = () => {
-        twoButtonAlert();
+      const previewPhoto = () => 
+      {
+        keepOrDiscard();
         return (
           <>
             <Image style={StyleSheet.absoluteFill} source={{ uri: `file://${picture}` }} />
@@ -40,8 +78,10 @@ const Project1Stage1 = () => {
         );
       };
     
-      useFocusEffect(
-        React.useCallback(() => {
+      useFocusEffect
+      (
+        React.useCallback(() => 
+        {
           setIsActive(true);
           return () => setIsActive(false);
         }, [])
@@ -83,84 +123,107 @@ const Project1Stage1 = () => {
       const [longitude, setLongitude] = useState(null);
       const [speed, setSpeed] = useState(null);
       const [errorMsg, setErrorMsg] = useState(null);
+      
       const [{x,y,z},setData] = useState({
         x:0,
         y:0,
         z:0,
       });
 
-    useFocusEffect(
-      React.useCallback(()=>{
-    Accelerometer.setUpdateInterval(500)
-    let sensorSub
-    
-    const accSubscribe = ()=>
-    {
-      sensorSub = Accelerometer.addListener(setData)
-      console.log('Sensor')
-    }
-    Accelerometer.setUpdateInterval(500)
-    accSubscribe();
-      return()=> 
+    useFocusEffect
+    (
+      React.useCallback(()=>
       {
-        console.log('unsub Sens')
-        sensorSub && sensorSub.remove()
-      }
-    },[]))
+        Accelerometer.setUpdateInterval(500)
+        let sensorSub
+    
+        const accSubscribe = ()=>
+        {
+          sensorSub = Accelerometer.addListener(setData)
+          console.log('Sensor')
+        }
 
-    useFocusEffect(
-      React.useCallback(() => {
-        let subscription;
-    
-        (async () => {
-          let { status } = await Location.requestForegroundPermissionsAsync();
-          if (status !== 'granted') {
-            setErrorMsg('Permission to access location was denied');
-            return;
+        Accelerometer.setUpdateInterval(500)
+        accSubscribe();
+          return()=> 
+          {
+            console.log('unsub Sens')
+            sensorSub && sensorSub.remove()
           }
+      },[])
+    )
+
+    useFocusEffect
+    (
+      React.useCallback(() => 
+        {
+          let subscription;
     
-          try {
-            subscription = await Location.watchPositionAsync(
+          (async () => 
+            {
+              let { status } = await Location.requestForegroundPermissionsAsync();
+              if (status !== 'granted') 
+                {
+                  setErrorMsg('Permission to access location was denied');
+                  return;
+                }
+    
+              try 
               {
-                accuracy: Location.Accuracy.High,
-                timeInterval: 10000,
-              },
-              newLocation => {
-                console.log('update location!', newLocation.coords.latitude, newLocation.coords.longitude);
-                setLocation(newLocation);
-                setLatitude(newLocation.coords.latitude);
-                setAltitude(newLocation.coords.altitude);
-                setLongitude(newLocation.coords.longitude);
-                setSpeed(newLocation.coords.speed);
-              }
-            );
-          } catch (error) {
-            console.error(error);
-            setErrorMsg('Error watching location');
-          }
-        })();
+              subscription = await Location.watchPositionAsync
+              (
+                {
+                  accuracy: Location.Accuracy.High,
+                  timeInterval: 10000,
+                },
+                newLocation => 
+                  {
+                    console.log('update location!', newLocation.coords.latitude, newLocation.coords.longitude);
+                    setLocation(newLocation);
+                    setLatitude(newLocation.coords.latitude);
+                    setAltitude(newLocation.coords.altitude);
+                    setLongitude(newLocation.coords.longitude);
+                    setSpeed(newLocation.coords.speed);
+                  }
+              );
+
+              }  
+                catch (error) 
+                  {
+                    console.error(error);
+                    setErrorMsg('Error watching location');
+                  }
+            }
+          )();
     
-        return () => {
-          if (subscription) {
-            console.log('loc unsub');
-            subscription.remove();
-          }
-        };
-      }, [])
+          return () => 
+            {
+              if (subscription) 
+                {
+                  console.log('loc unsub');
+                  subscription.remove();
+                }
+            };
+        }, [])
     );
     
     
       let locText = 'Waiting..';
-      if (errorMsg) {
-        locText = errorMsg;
-      } else if (location) {
+      if (errorMsg) 
+        {
+          locText = errorMsg;
+        }   
+      else if (location) 
+      {
         locText = `Altitude: ${altitude}. Longitude: ${longitude}. Latitude: ${latitude}. Speed: ${speed}`;
       }
 
       let ornText = 'Waiting..'
-      if (errorMsg){
+      if (errorMsg)
+      {
         ornText = errorMsg;
-      } else if (x && y && z)
+      } 
+      else if (x && y && z)
       {
         ornText = `X: ${x}. Y: ${y}. Z:${z}` 
       }
@@ -173,41 +236,49 @@ const Project1Stage1 = () => {
       );
     };
     
-    const Gallery = () => {
-      const [refreshing, setRefreshing] = useState(false);
-      const [pictures, setPictures] = useState([]);
-    
-      const fetchPhotos = async () => {
-        const photos = await CameraRoll.getPhotos({
-          first:20,
-          assetType: 'Photos',
-          groupName: 'ProjectStage1',
-        });
-        setPictures(photos.edges.map(p => p.node.image.uri));
-      };
-    
-      const onRefresh = React.useCallback(() => {
-        setRefreshing(true);
-        fetchPhotos().then(() => setRefreshing(false));
-      }, []);
-    
-      useFocusEffect(
-        React.useCallback(()=>
+    const Gallery = () => 
       {
-        fetchPhotos();
-      }, []));
+        const [refreshing, setRefreshing] = useState(false);
+        const [pictures, setPictures] = useState([]);
+    
+        const fetchPhotos = async () => 
+          {
+            const photos = await CameraRoll.getPhotos
+            ({
+              first:20,
+              assetType: 'Photos',
+              groupName: 'ProjectStage1',
+            });
+            setPictures(photos.edges.map(p => p.node.image.uri));
+          };
+    
+        const onRefresh = React.useCallback(() => 
+          {
+            setRefreshing(true);
+            fetchPhotos().then(() => setRefreshing(false));
+          }, []);
+    
+      useFocusEffect
+      (
+        React.useCallback(()=>
+        {
+          fetchPhotos();
+        }, [])
+      );
     
       return (
         <FlatList
           data={pictures}
-          renderItem={({ item }) => (
+          renderItem={({ item }) => 
+          (
             <Image
               source={{ uri: item }}
               style={{ width: 200, height: 250 }}
             />
           )}
           keyExtractor={item => item}
-          refreshControl={
+          refreshControl=
+          {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
         />
@@ -216,45 +287,55 @@ const Project1Stage1 = () => {
     
     const SlideShow = () =>
     {
-
-    const [images, setImages] = useState([]);
-    const [isPlaying, setIsPlaying] = useState(true);
-    const flatListRef = useRef();
-    let currentIndex = 0;
+      const [images, setImages] = useState([]);
+      const [isPlaying, setIsPlaying] = useState(true);
+      const flatListRef = useRef();
+      let currentIndex = 0;
   
-    useFocusEffect(
-    React.useCallback(()=>{
-      fetchPhotos();
-    }, []));
+      useFocusEffect
+      (
+        React.useCallback(()=>
+          {
+            fetchPhotos();
+          }, [])
+      );
   
-    useFocusEffect(
+    useFocusEffect
+    (
       React.useCallback(()=>
         {
           let interval;
-          if (isPlaying && images.length > 0) {
-        interval = setInterval(() => {
-          currentIndex = (currentIndex + 1) % images.length;
-          flatListRef.current.scrollToOffset({
-            animated: true,
-            offset: currentIndex * 250,
-          });
-        }, 1000);
-      }
-      return () => clearInterval(interval);
-    }, [isPlaying, images]));
+          if (isPlaying && images.length > 0) 
+            {
+              interval = setInterval(() => 
+                {
+                  currentIndex = (currentIndex + 1) % images.length;
+                  flatListRef.current.scrollToOffset
+                  ({
+                    animated: true,
+                    offset: currentIndex * 250,
+                  });
+                }, 1000);
+            }
+          return () => clearInterval(interval);
+        }, [isPlaying, images])
+    );
 
       
   
-    const fetchPhotos = async () => {
-      const photos = await CameraRoll.getPhotos({
-        first: 20,
-        assetType: 'Photos',
-        groupName: 'ProjectStage1',
-      });
-      setImages(photos.edges.map(p => p.node.image.uri));
-    };
+    const fetchPhotos = async () => 
+      {
+        const photos = await CameraRoll.getPhotos
+        ({
+          first: 40,
+          assetType: 'Photos',
+          groupName: 'ProjectStage1',
+        });
+        setImages(photos.edges.map(p => p.node.image.uri));
+      };
   
-    const renderItem = ({ item }) => (
+    const renderItem = ({ item }) => 
+    (
       <Image style={{ width: 200, height: 250 }} source={{ uri: item }} />
     );
   
@@ -284,53 +365,7 @@ const Project1Stage1 = () => {
           <Tab.Screen options ={{title:'SlideShow'}} name="SlideShow" component={SlideShow} />
         </Tab.Navigator>
         )
-    
     }
-
-    const keepPicture = async () =>
-      {
-        await CameraRoll.save(`file://${picture}`, {
-        type: 'photo',
-        album:'ProjectStage1'
-        })
-        .then(() => {
-          console.log('Photo stored successfully');
-          setPicture(null);
-          CameraRoll.getPhotos({
-            first:20,
-            assetType:'Photos',
-            groupName:'photos',
-          })
-      })
-      .catch((error) => {
-          console.error('Error storing photo: ', error);
-      });
-      }
-      
-      
-      const deletePicture = () =>
-      {
-          RNFS.unlink(`file://${picture}`)
-          .then(() => {
-              console.log('Photo deleted successfully');
-              setPicture(null);
-          })
-          .catch((error) => {
-              console.error('Error deleting photo: ', error);
-          });
-      
-
-      }
-      const twoButtonAlert = () =>{
-        Alert.alert('Alert ', 'Keep or disard the photo?', [
-          {
-            text: 'discard',
-            onPress: () => deletePicture(),
-            style: 'cancel',
-          },
-          {text: 'Keep', onPress: () => keepPicture()},
-        ]);}
-    
 
       async function hasAndroidPermission() {
         const getCheckPermissionPromise = () => {
